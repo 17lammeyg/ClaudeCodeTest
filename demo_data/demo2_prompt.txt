@@ -1,0 +1,9 @@
+Read the file demo_data/client_brief.txt. Then do the following:
+
+1. Build a MECE issue tree of the key questions we need to answer to develop a market entry recommendation for this client. Organize it into 3-4 top-level buckets, each with 3-4 sub-questions.
+
+2. Produce a slide outline for a 10-slide deck that would present our market entry recommendation at the end of the engagement. Include a one-line description of what each slide should show.
+
+3. Write the text for the "Situation" slide (slide 1) in the style of a top-tier management consulting firm — crisp, factual, no filler.
+
+Save the output to demo_data/framework_output.md.
