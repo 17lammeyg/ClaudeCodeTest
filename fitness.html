@@ -3,126 +3,278 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Fitness">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a0a0a'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%2322c55e'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000000'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='%23c9a959' font-family='Georgia,serif' font-style='italic'%3EF%3C/text%3E%3C/svg%3E">
 <title>Fitness Coach</title>
 <style>
+  :root {
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --surface-2: #111111;
+    --surface-3: #161616;
+    --border: #1a1a1a;
+    --border-hi: #2a2416;
+    --accent: #c9a959;
+    --accent-hi: #d9bb6a;
+    --accent-dim: #8a7638;
+    --accent-glow: rgba(201, 169, 89, 0.12);
+    --text: #f0ebe0;
+    --text-2: #9a938a;
+    --text-3: #5c5750;
+    --danger: #c04747;
+    --warn: #d99e4a;
+    --success: #86a878;
+  }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior: none; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #0a0a0a; color: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, sans-serif;
+    background: var(--bg); color: var(--text);
     display: flex; flex-direction: column;
     padding-bottom: env(safe-area-inset-bottom);
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
   }
   header {
-    padding: 14px 16px 10px; border-bottom: 1px solid #1f1f1f;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
-    padding-top: calc(14px + env(safe-area-inset-top));
+    padding-top: calc(16px + env(safe-area-inset-top));
+    background: linear-gradient(180deg, #050505, #000);
   }
-  header h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
-  header .status { font-size: 12px; color: #666; }
-  header .status.ok { color: #22c55e; }
-  main { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 90px; -webkit-overflow-scrolling: touch; }
+  header h1 {
+    margin: 0; font-size: 15px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--text);
+  }
+  header .brand-mark {
+    font-family: Georgia, "Times New Roman", serif; font-style: italic;
+    color: var(--accent); font-size: 18px; margin-right: 10px;
+  }
+  header .status { font-size: 10px; color: var(--text-3); letter-spacing: 0.1em; text-transform: uppercase; }
+  header .status.ok { color: var(--accent); }
+  main { flex: 1; overflow-y: auto; padding: 20px 18px; padding-bottom: 110px; -webkit-overflow-scrolling: touch; }
   nav.tabs {
     position: fixed; bottom: 0; left: 0; right: 0;
     display: grid; grid-template-columns: repeat(5, 1fr);
-    background: #101010; border-top: 1px solid #1f1f1f;
+    background: #050505; border-top: 1px solid var(--border);
     padding-bottom: env(safe-area-inset-bottom);
     z-index: 10;
+    backdrop-filter: blur(20px);
   }
   nav.tabs button {
-    background: none; border: none; color: #666; font-size: 11px;
-    padding: 10px 4px 12px; cursor: pointer; font-family: inherit;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: none; color: var(--text-3);
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 12px 4px 14px; cursor: pointer; font-family: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: color .15s;
   }
-  nav.tabs button .ic { font-size: 20px; line-height: 1; }
-  nav.tabs button.active { color: #22c55e; }
+  nav.tabs button .ic { font-size: 20px; line-height: 1; filter: grayscale(0.4); }
+  nav.tabs button.active { color: var(--accent); }
+  nav.tabs button.active .ic { filter: none; }
   section { display: none; }
-  section.active { display: block; animation: fade .15s ease; }
+  section.active { display: block; animation: fade .2s ease; }
   @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-  .card { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-  .card h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: #ddd; }
-  .row { display: flex; gap: 8px; align-items: center; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 18px; right: 18px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
+  }
+  .card h3 {
+    margin: 0 0 14px; font-size: 11px; font-weight: 500;
+    color: var(--accent); letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .row { display: flex; gap: 10px; align-items: center; }
   .row.wrap { flex-wrap: wrap; }
   .grow { flex: 1; }
-  .muted { color: #777; font-size: 12px; }
+  .muted { color: var(--text-2); font-size: 12px; }
   .small { font-size: 12px; }
-  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: #1e2f1e; color: #22c55e; }
-  .pill.warn { background: #2f2419; color: #f59e0b; }
+  .pill {
+    display: inline-block; padding: 3px 10px; border-radius: 2px;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    background: var(--accent-glow); color: var(--accent);
+    border: 1px solid var(--accent-dim);
+  }
 
   input, textarea, select, button {
-    font-family: inherit; font-size: 15px; color: #f5f5f5;
-    background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px;
-    padding: 10px 12px; outline: none;
+    font-family: inherit; font-size: 15px; color: var(--text);
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 11px 13px; outline: none;
+    transition: border-color .15s;
   }
-  input:focus, textarea:focus, select:focus { border-color: #22c55e; }
-  input[type="number"] { -moz-appearance: textfield; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent-dim); }
+  input[type="number"] { -moz-appearance: textfield; font-variant-numeric: tabular-nums; }
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  textarea { resize: vertical; min-height: 60px; width: 100%; }
+  textarea { resize: vertical; min-height: 64px; width: 100%; line-height: 1.5; }
 
-  button.btn { cursor: pointer; font-weight: 500; }
-  button.btn.primary { background: #22c55e; color: #052e16; border-color: #22c55e; }
-  button.btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
-  button.btn.ghost { background: transparent; }
-  button.btn.danger { background: transparent; border-color: #3a1a1a; color: #ef4444; }
-  button.btn.sm { padding: 6px 10px; font-size: 13px; }
+  button.btn { cursor: pointer; font-weight: 500; letter-spacing: 0.06em; transition: all .15s; }
+  button.btn.primary {
+    background: var(--accent); color: #1a1408; border: 1px solid var(--accent);
+    text-transform: uppercase; font-size: 12px; letter-spacing: 0.14em; padding: 12px 16px;
+  }
+  button.btn.primary:hover { background: var(--accent-hi); }
+  button.btn.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.btn.ghost { background: transparent; color: var(--text-2); }
+  button.btn.ghost:hover { color: var(--text); border-color: var(--border-hi); }
+  button.btn.danger { background: transparent; border-color: #3a2020; color: var(--danger); }
+  button.btn.sm { padding: 7px 11px; font-size: 11px; letter-spacing: 0.1em; }
 
-  .setrow { display: grid; grid-template-columns: 28px 1fr 1fr 44px 32px; gap: 6px; align-items: center; margin-bottom: 6px; }
-  .setrow .idx { color: #666; font-size: 13px; text-align: center; }
-  .setrow input { padding: 8px 10px; font-size: 14px; text-align: center; }
-  .setrow .done { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 8px 0; cursor: pointer; text-align: center; }
-  .setrow .done.on { background: #1e2f1e; border-color: #22c55e; color: #22c55e; }
-  .setrow .rm { background: none; border: none; color: #555; cursor: pointer; font-size: 18px; padding: 0; }
+  .setrow {
+    display: grid; grid-template-columns: 24px 1fr 1fr 44px 28px;
+    gap: 8px; align-items: center; margin-bottom: 6px;
+  }
+  .setrow .idx {
+    color: var(--text-3); font-size: 11px; text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .setrow input {
+    padding: 9px 8px; font-size: 14px; text-align: center;
+    background: var(--surface-2);
+  }
+  .setrow .done {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 9px 0; cursor: pointer; text-align: center;
+    color: var(--text-3); font-size: 14px; transition: all .15s;
+  }
+  .setrow .done.on {
+    background: var(--accent); border-color: var(--accent);
+    color: #1a1408; font-weight: 700;
+  }
+  .setrow .rm { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 18px; padding: 0; }
+  .setrow .rm:hover { color: var(--danger); }
 
-  .exercise { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
-  .exercise .ehead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .exercise .ename { font-weight: 600; font-size: 15px; }
-  .exercise .ehist { font-size: 11px; color: #888; margin-bottom: 8px; }
+  .exercise {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .exercise .ehead {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .exercise .ename { font-weight: 500; font-size: 15px; letter-spacing: 0.01em; }
+  .exercise .ehist {
+    font-size: 11px; color: var(--text-2); margin-bottom: 10px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .exercise .ehist .pill { margin-left: 4px; }
 
   /* Chat */
-  #coach { display: none; height: calc(100vh - 140px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); flex-direction: column; }
-  #coach.active { display: flex; }
+  #tab-coach { height: calc(100vh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  #tab-coach.active { display: flex; flex-direction: column; }
   .chat { flex: 1; overflow-y: auto; padding: 4px; }
-  .msg { margin-bottom: 10px; max-width: 88%; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
-  .msg.user { background: #1e2f1e; color: #dcfce7; margin-left: auto; border-bottom-right-radius: 4px; }
-  .msg.assistant { background: #1a1a1a; border: 1px solid #222; border-bottom-left-radius: 4px; }
-  .msg.error { background: #2a1414; color: #f87171; border: 1px solid #442020; }
-  .composer { display: flex; gap: 6px; padding-top: 8px; border-top: 1px solid #1f1f1f; }
-  .composer textarea { min-height: 44px; max-height: 120px; padding: 10px 12px; }
+  .msg {
+    margin-bottom: 12px; max-width: 88%; padding: 12px 14px; border-radius: 6px;
+    font-size: 14px; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word;
+  }
+  .msg.user {
+    background: var(--accent-glow); border: 1px solid var(--accent-dim);
+    color: var(--text); margin-left: auto;
+  }
+  .msg.assistant { background: var(--surface-2); border: 1px solid var(--border); }
+  .msg.error {
+    background: rgba(192,71,71,0.1); color: var(--danger);
+    border: 1px solid rgba(192,71,71,0.3);
+  }
+  .composer { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .composer textarea { min-height: 46px; max-height: 120px; padding: 12px 14px; }
 
-  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .stat { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 10px; text-align: center; }
-  .stat .n { font-size: 20px; font-weight: 600; color: #22c55e; }
-  .stat .l { font-size: 11px; color: #888; margin-top: 2px; }
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 10px; text-align: center;
+  }
+  .stat .n {
+    font-size: 24px; font-weight: 300; color: var(--accent);
+    font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+    font-family: Georgia, serif;
+  }
+  .stat .l {
+    font-size: 9px; color: var(--text-2); margin-top: 4px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
 
-  .hist-day { padding: 10px 0; border-bottom: 1px solid #1f1f1f; }
-  .hist-day:last-child { border-bottom: none; }
-  .hist-ex { font-size: 13px; color: #bbb; margin: 4px 0 0 8px; }
-  .pr { color: #22c55e; font-weight: 600; }
+  .hist-day { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .hist-day:last-child { border-bottom: none; padding-bottom: 0; }
+  .hist-ex { font-size: 13px; color: var(--text-2); margin: 4px 0 0 10px; }
+  .pr { color: var(--accent); font-weight: 600; }
 
-  .chart { width: 100%; height: 140px; margin-top: 8px; }
+  .chart { width: 100%; height: 150px; margin-top: 10px; }
 
-  .empty { text-align: center; color: #666; padding: 40px 20px; }
-  .empty .ic { font-size: 40px; margin-bottom: 8px; }
+  .empty { text-align: center; color: var(--text-3); padding: 50px 20px; }
+  .empty .ic { font-size: 42px; margin-bottom: 12px; filter: grayscale(0.5); }
+  .empty .h { color: var(--text-2); font-size: 15px; margin-bottom: 6px; }
 
-  details summary { cursor: pointer; color: #888; font-size: 13px; padding: 6px 0; }
-  details[open] summary { color: #ddd; }
+  details summary { cursor: pointer; color: var(--text-2); font-size: 12px; padding: 6px 0; letter-spacing: 0.05em; }
+  details[open] summary { color: var(--text); }
 
-  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e2f1e; color: #22c55e; padding: 10px 16px; border-radius: 999px; font-size: 13px; border: 1px solid #22c55e; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 100; }
+  .toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+    background: #000; color: var(--accent); padding: 10px 20px; border-radius: 2px;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    border: 1px solid var(--accent-dim);
+    opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 100;
+  }
   .toast.show { opacity: 1; }
+
+  /* REST TIMER */
+  .timer-bar {
+    position: fixed; left: 12px; right: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    background: #000; border: 1px solid var(--accent-dim);
+    border-radius: 8px; padding: 12px 14px;
+    display: none; align-items: center; gap: 12px;
+    z-index: 20;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.8), 0 0 40px var(--accent-glow);
+    animation: slideup .25s ease;
+  }
+  .timer-bar.show { display: flex; }
+  @keyframes slideup { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+  .timer-bar .tlabel {
+    font-size: 9px; color: var(--text-3); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 2px;
+  }
+  .timer-bar .tcount {
+    font-family: Georgia, serif; font-size: 26px; color: var(--accent);
+    font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: 0.02em;
+  }
+  .timer-bar.done .tcount { color: var(--success); }
+  .timer-bar .tbtn {
+    background: transparent; border: 1px solid var(--border-hi); color: var(--text);
+    border-radius: 4px; padding: 8px 10px; cursor: pointer;
+    font-family: inherit; font-size: 11px; letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-bar .tbtn:hover { border-color: var(--accent-dim); }
+  .timer-bar .tclose {
+    background: none; border: none; color: var(--text-3);
+    font-size: 20px; padding: 0 4px; cursor: pointer;
+  }
+  .timer-bar .tclose:hover { color: var(--text); }
+  .timer-progress {
+    position: absolute; bottom: 0; left: 0; height: 2px;
+    background: var(--accent); border-radius: 0 0 8px 8px;
+    transition: width .5s linear;
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <h1 id="page-title">Workout</h1>
-  <span class="status" id="api-status">No API key</span>
+  <div style="display:flex;align-items:center"><span class="brand-mark">ƒ</span><h1 id="page-title">Workout</h1></div>
+  <span class="status" id="api-status">No key</span>
 </header>
 
 <main>
@@ -130,28 +282,31 @@
 <!-- WORKOUT TAB -->
 <section id="tab-workout" class="active">
   <div id="workout-empty" class="empty" style="display:none">
-    <div class="ic">💪</div>
-    <div>No workout in progress</div>
-    <div class="muted" style="margin-top:8px">Start one to log exercises</div>
-    <button class="btn primary" style="margin-top:16px" onclick="startWorkout()">Start Workout</button>
+    <div class="ic">🏋️</div>
+    <div class="h">No workout in progress</div>
+    <div class="muted">Start a session to log exercises</div>
+    <button class="btn primary" style="margin-top:20px" onclick="startWorkout()">Start Workout</button>
   </div>
   <div id="workout-active" style="display:none">
     <div class="card">
       <div class="row">
         <div class="grow">
-          <div class="small muted" id="workout-date"></div>
-          <div style="font-size:16px;font-weight:600;margin-top:2px" id="workout-title">Today's Session</div>
+          <div class="small muted" id="workout-date" style="letter-spacing:0.1em;text-transform:uppercase;font-size:10px"></div>
+          <div style="font-size:17px;font-weight:400;margin-top:4px;font-family:Georgia,serif;font-style:italic" id="workout-title">Today's Session</div>
         </div>
         <button class="btn sm ghost" onclick="finishWorkout()">Finish</button>
       </div>
     </div>
     <div id="exercises"></div>
-    <div class="row" style="margin-top:12px">
+    <div class="row" style="margin-top:14px">
       <input id="new-exercise" class="grow" placeholder="Add exercise (e.g. Bench Press)" list="exercise-suggestions">
       <datalist id="exercise-suggestions"></datalist>
       <button class="btn primary" onclick="addExercise()">Add</button>
     </div>
-    <div class="row wrap" style="margin-top:10px;gap:6px" id="quick-add"></div>
+    <div class="row wrap" style="margin-top:12px;gap:6px" id="quick-add"></div>
+    <div style="margin-top:18px;text-align:center">
+      <button class="btn sm ghost" onclick="startTimer()">Start Rest Timer</button>
+    </div>
   </div>
 </section>
 
@@ -159,7 +314,7 @@
 <section id="tab-coach">
   <div class="chat" id="chat"></div>
   <div class="composer">
-    <textarea id="chat-input" placeholder="How are you feeling? Any injuries? Should I go up on bench?" rows="1"></textarea>
+    <textarea id="chat-input" placeholder="How are you feeling? Any injuries acting up?" rows="1"></textarea>
     <button class="btn primary" id="send-btn" onclick="sendMessage()">Send</button>
   </div>
 </section>
@@ -172,22 +327,22 @@
 <!-- METRICS TAB -->
 <section id="tab-metrics">
   <div class="card">
-    <h3>Log today</h3>
+    <h3>Log Today</h3>
     <div class="metric-row">
-      <input type="number" id="m-bw" placeholder="Weight (lb)" step="0.1">
-      <input type="number" id="m-sleep" placeholder="Sleep (h)" step="0.5">
+      <input type="number" id="m-bw" placeholder="Weight" step="0.1">
+      <input type="number" id="m-sleep" placeholder="Sleep h" step="0.5">
       <input type="number" id="m-mood" placeholder="Mood 1-10" min="1" max="10">
     </div>
-    <textarea id="m-notes" placeholder="Notes (energy, soreness, injuries, etc.)"></textarea>
-    <button class="btn primary" style="margin-top:8px;width:100%" onclick="logMetric()">Save Metrics</button>
+    <textarea id="m-notes" placeholder="Notes — energy, soreness, injuries, symptoms"></textarea>
+    <button class="btn primary" style="margin-top:10px;width:100%" onclick="logMetric()">Save Metrics</button>
   </div>
   <div class="card">
-    <h3>Body weight trend</h3>
+    <h3>Body Weight Trend</h3>
     <canvas id="bw-chart" class="chart"></canvas>
     <div id="bw-stats" class="row" style="margin-top:8px;justify-content:space-between"></div>
   </div>
   <div class="card">
-    <h3>Recent entries</h3>
+    <h3>Recent Entries</h3>
     <div id="metrics-list"></div>
   </div>
 </section>
@@ -196,19 +351,35 @@
 <section id="tab-settings">
   <div class="card">
     <h3>Anthropic API Key</h3>
-    <div class="muted small" style="margin-bottom:10px">
-      Needed for the AI Coach. Get one at console.anthropic.com. Stored locally on this device only — never sent anywhere except Anthropic's API.
+    <div class="muted small" style="margin-bottom:12px">
+      Get one at console.anthropic.com. Stored locally on this device only — sent only to Anthropic's API.
     </div>
     <input type="password" id="api-key" placeholder="sk-ant-..." style="width:100%">
-    <button class="btn primary" style="margin-top:8px;width:100%" onclick="saveApiKey()">Save Key</button>
+    <button class="btn primary" style="margin-top:10px;width:100%" onclick="saveApiKey()">Save Key</button>
   </div>
   <div class="card">
-    <h3>Your profile</h3>
-    <div class="muted small" style="margin-bottom:10px">
-      Coach uses this to personalize advice. Include goals, training experience, ongoing injuries, preferences.
+    <h3>Your Profile</h3>
+    <div class="muted small" style="margin-bottom:12px">
+      Coach reads this on every message. Include goals, training experience, injuries, preferences.
     </div>
-    <textarea id="profile" rows="6" placeholder="e.g. 32M, 180lb, 3 years lifting. Goal: hypertrophy + strength. Left shoulder impingement — avoid overhead pressing. Train 4x/week."></textarea>
-    <button class="btn primary" style="margin-top:8px;width:100%" onclick="saveProfile()">Save Profile</button>
+    <textarea id="profile" rows="8" placeholder="Goals, experience, injuries, training frequency, preferences..."></textarea>
+    <button class="btn primary" style="margin-top:10px;width:100%" onclick="saveProfile()">Save Profile</button>
+  </div>
+  <div class="card">
+    <h3>Rest Timer Default</h3>
+    <div class="row" style="gap:8px;margin-top:8px">
+      <select id="rest-default" onchange="saveRestDefault()" style="flex:1">
+        <option value="60">60 seconds</option>
+        <option value="90">90 seconds</option>
+        <option value="120" selected>2 minutes</option>
+        <option value="180">3 minutes</option>
+        <option value="240">4 minutes</option>
+        <option value="300">5 minutes</option>
+      </select>
+    </div>
+    <div class="muted small" style="margin-top:10px">
+      Timer auto-starts when you mark a set complete. You can adjust ±30s while it's running.
+    </div>
   </div>
   <div class="card">
     <h3>Data</h3>
@@ -216,24 +387,36 @@
       <button class="btn ghost grow" onclick="exportData()">Export JSON</button>
       <button class="btn ghost grow" onclick="importData()">Import JSON</button>
     </div>
-    <button class="btn danger" style="margin-top:8px;width:100%" onclick="clearAll()">Clear all data</button>
+    <button class="btn danger" style="margin-top:10px;width:100%" onclick="clearAll()">Clear All Data</button>
   </div>
   <div class="card">
     <h3>About</h3>
     <div class="muted small">
-      All data stays on this device (localStorage). To use on your phone: open this page's URL and tap "Add to Home Screen".
+      All data stays on this device (localStorage). Open the URL on your phone and tap "Add to Home Screen" for full-screen use.
     </div>
   </div>
 </section>
 
 </main>
 
+<!-- REST TIMER -->
+<div class="timer-bar" id="timer">
+  <div style="flex:1">
+    <div class="tlabel" id="timer-label">Rest</div>
+    <div class="tcount" id="timer-count">2:00</div>
+  </div>
+  <button class="tbtn" onclick="adjustTimer(-30)">−30</button>
+  <button class="tbtn" onclick="adjustTimer(30)">+30</button>
+  <button class="tclose" onclick="stopTimer()">×</button>
+  <div class="timer-progress" id="timer-progress" style="width:100%"></div>
+</div>
+
 <nav class="tabs">
-  <button data-tab="workout" class="active" onclick="switchTab('workout')"><span class="ic">🏋️</span>Workout</button>
-  <button data-tab="coach" onclick="switchTab('coach')"><span class="ic">🤖</span>Coach</button>
-  <button data-tab="history" onclick="switchTab('history')"><span class="ic">📊</span>History</button>
-  <button data-tab="metrics" onclick="switchTab('metrics')"><span class="ic">📈</span>Metrics</button>
-  <button data-tab="settings" onclick="switchTab('settings')"><span class="ic">⚙️</span>Settings</button>
+  <button data-tab="workout" class="active" onclick="switchTab('workout')"><span class="ic">🏋️</span>Train</button>
+  <button data-tab="coach" onclick="switchTab('coach')"><span class="ic">✦</span>Coach</button>
+  <button data-tab="history" onclick="switchTab('history')"><span class="ic">◈</span>History</button>
+  <button data-tab="metrics" onclick="switchTab('metrics')"><span class="ic">◊</span>Metrics</button>
+  <button data-tab="settings" onclick="switchTab('settings')"><span class="ic">⚙</span>Settings</button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -242,22 +425,24 @@
 // ---------- State ----------
 const STORAGE_KEY = 'fitness-coach-v1';
 const state = {
-  workouts: [],       // completed [{id, date, exercises: [{name, sets: [{weight, reps, done}], notes}]}]
-  current: null,      // in-progress workout
-  metrics: [],        // [{date, bw, sleep, mood, notes}]
-  chat: [],           // [{role, content}]
+  workouts: [],
+  current: null,
+  metrics: [],
+  chat: [],
   profile: '',
   apiKey: '',
+  restDefault: 120,
 };
 
 function load() {
   try { const s = localStorage.getItem(STORAGE_KEY); if (s) Object.assign(state, JSON.parse(s)); } catch {}
+  if (!state.restDefault) state.restDefault = 120;
 }
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 load();
 
 // ---------- Tabs ----------
-const TITLES = { workout: 'Workout', coach: 'AI Coach', history: 'History', metrics: 'Metrics', settings: 'Settings' };
+const TITLES = { workout: 'Workout', coach: 'Coach', history: 'History', metrics: 'Metrics', settings: 'Settings' };
 function switchTab(name) {
   document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
@@ -285,7 +470,85 @@ function fmtDate(iso) {
 function updateApiStatus() {
   const el = document.getElementById('api-status');
   if (state.apiKey) { el.textContent = 'Coach ready'; el.classList.add('ok'); }
-  else { el.textContent = 'No API key'; el.classList.remove('ok'); }
+  else { el.textContent = 'No key'; el.classList.remove('ok'); }
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// ---------- REST TIMER ----------
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+let audioCtx = null;
+
+function fmtTime(s) {
+  s = Math.max(0, Math.round(s));
+  const m = Math.floor(s / 60); const sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+function startTimer(seconds) {
+  const secs = seconds || state.restDefault || 120;
+  timerRemaining = secs;
+  timerTotal = secs;
+  const bar = document.getElementById('timer');
+  bar.classList.remove('done');
+  bar.classList.add('show');
+  document.getElementById('timer-label').textContent = 'Rest';
+  renderTimer();
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timerRemaining -= 1;
+    if (timerRemaining <= 0) {
+      timerRemaining = 0; renderTimer();
+      clearInterval(timerInterval); timerInterval = null;
+      timerDone();
+      return;
+    }
+    renderTimer();
+  }, 1000);
+}
+function renderTimer() {
+  document.getElementById('timer-count').textContent = fmtTime(timerRemaining);
+  const pct = timerTotal ? (timerRemaining / timerTotal) * 100 : 0;
+  document.getElementById('timer-progress').style.width = pct + '%';
+}
+function adjustTimer(delta) {
+  if (timerInterval === null) startTimer(Math.max(15, delta));
+  else {
+    timerRemaining = Math.max(5, timerRemaining + delta);
+    timerTotal = Math.max(timerTotal, timerRemaining);
+    renderTimer();
+  }
+}
+function stopTimer() {
+  clearInterval(timerInterval); timerInterval = null;
+  document.getElementById('timer').classList.remove('show', 'done');
+}
+function timerDone() {
+  const bar = document.getElementById('timer');
+  bar.classList.add('done');
+  document.getElementById('timer-label').textContent = 'Ready';
+  document.getElementById('timer-count').textContent = 'GO';
+  beep();
+  if (navigator.vibrate) navigator.vibrate([120, 80, 120]);
+  setTimeout(() => { bar.classList.remove('show', 'done'); }, 4000);
+}
+function beep() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    [0, 0.18, 0.36].forEach((t, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = 660 + i * 220;
+      gain.gain.setValueAtTime(0.0001, now + t);
+      gain.gain.exponentialRampToValueAtTime(0.3, now + t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.14);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(now + t); osc.stop(now + t + 0.16);
+    });
+  } catch {}
 }
 
 // ---------- Workout ----------
@@ -301,6 +564,7 @@ function finishWorkout() {
   }
   state.workouts.unshift(state.current);
   state.current = null; save();
+  stopTimer();
   toast('Workout saved'); renderWorkout();
 }
 function addExercise(name) {
@@ -344,7 +608,9 @@ function updateSet(exIdx, sIdx, field, value) {
 }
 function toggleDone(exIdx, sIdx) {
   const s = state.current.exercises[exIdx].sets[sIdx];
+  const wasDone = s.done;
   s.done = !s.done; save(); renderWorkout();
+  if (s.done && !wasDone) startTimer();
 }
 function updateNotes(exIdx, notes) {
   state.current.exercises[exIdx].notes = notes; save();
@@ -372,14 +638,14 @@ function renderWorkout() {
         <div class="ename">${escapeHtml(ex.name)}</div>
         <button class="btn sm danger" onclick="removeExercise(${i})">Remove</button>
       </div>
-      ${last ? `<div class="ehist">Last: ${last.sets.map(s => `${s.weight || '?'}×${s.reps || '?'}`).join(', ')}${suggestion ? ' · <span class="pill">' + suggestion + '</span>' : ''}</div>` : ''}
+      ${last ? `<div class="ehist">Last: ${last.sets.map(s => `${s.weight || '?'}×${s.reps || '?'}`).join(', ')}${suggestion ? ' <span class="pill">' + suggestion + '</span>' : ''}</div>` : ''}
       <div class="sets" id="sets-${i}"></div>
-      <div class="row" style="margin-top:6px;gap:6px">
+      <div class="row" style="margin-top:8px;gap:6px">
         <button class="btn sm ghost" onclick="addSet(${i})">+ Set</button>
       </div>
-      <details style="margin-top:8px">
+      <details style="margin-top:10px">
         <summary>Notes</summary>
-        <textarea onchange="updateNotes(${i}, this.value)" placeholder="Form cues, how it felt, etc.">${escapeHtml(ex.notes || '')}</textarea>
+        <textarea onchange="updateNotes(${i}, this.value)" placeholder="Form cues, how it felt, pain / discomfort...">${escapeHtml(ex.notes || '')}</textarea>
       </details>
     `;
     container.appendChild(div);
@@ -398,12 +664,10 @@ function renderWorkout() {
     });
   });
 
-  // exercise suggestions from history
   const seen = new Set(); const dl = document.getElementById('exercise-suggestions'); dl.innerHTML = '';
   for (const w of state.workouts) for (const e of w.exercises) {
     if (!seen.has(e.name.toLowerCase())) { seen.add(e.name.toLowerCase()); const o = document.createElement('option'); o.value = e.name; dl.appendChild(o); }
   }
-  // quick add for last workout's exercises
   const quick = document.getElementById('quick-add');
   quick.innerHTML = '';
   if (state.workouts.length && state.current.exercises.length === 0) {
@@ -419,7 +683,6 @@ function renderWorkout() {
 }
 
 function suggestProgression(name, lastEx) {
-  // Look at last two sessions with this exercise
   const lower = name.toLowerCase();
   const sessions = state.workouts.filter(w => w.exercises.some(e => e.name.toLowerCase() === lower)).slice(0, 2);
   if (sessions.length < 2) return '';
@@ -433,10 +696,6 @@ function suggestProgression(name, lastEx) {
   return '';
 }
 
-function escapeHtml(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
 // ---------- Coach ----------
 function buildSystemPrompt() {
   const recent = state.workouts.slice(0, 8).map(w => ({
@@ -448,18 +707,27 @@ function buildSystemPrompt() {
     })),
   }));
   const recentMetrics = state.metrics.slice(0, 14);
-  return `You are an experienced, no-nonsense strength & conditioning coach embedded in the user's fitness tracker app. You give practical, safe, personalized advice.
+  return `You are an experienced, injury-conscious strength & conditioning coach embedded in the user's personal fitness tracker. You give practical, personalized, safety-first advice.
 
-Guidelines:
-- Be concise. Match message length to the question — a one-line answer for a quick check, a paragraph for planning.
-- Cite the user's actual data when relevant (last weights, trends, recent notes).
-- For progression: recommend +5 lb on upper-body lifts or +10 lb on lower-body lifts only when they completed all sets/reps for 2+ sessions in a row. Otherwise suggest holding weight and getting more reps, or working on form.
-- For injuries: suggest specific substitutions (e.g. "swap OHP for landmine press" for shoulder issues). Never diagnose — if it sounds serious, tell them to see a PT.
-- When they describe how they're feeling, adapt: low sleep/high soreness → deload or reduce volume; feeling great → push for a PR set.
-- If they haven't logged in a while, don't lecture — just meet them where they are.
+CORE GUIDELINES
+- Be concise. Match message length to the question — one line for a quick check, a short paragraph for planning.
+- Cite the user's actual data when relevant (last weights, trends, notes).
+- Progression rule: recommend +5 lb on upper-body lifts or +10 lb on lower-body lifts ONLY when they've completed all sets and reps for 2+ sessions in a row. Otherwise, suggest holding weight for more reps or better form.
+- Adapt to state: low sleep / high soreness → deload or reduce volume. Feeling great → push for a top set. Injured or in pain → substitute or skip the movement.
 
-USER PROFILE:
-${state.profile || '(not set — ask them to fill in Settings)'}
+SAFETY — NON-NEGOTIABLE
+- Neurological red flags (numbness, tingling, weakness, radiating pain, loss of bladder/bowel control) — do NOT program around them. Tell the user to see a doctor or physiotherapist before their next training session, and skip loaded work on the affected area today.
+- Never diagnose. Suggest substitutions; refer serious/new/unresolved issues to a professional.
+- If the user has post-surgical recovery, chronic joint conditions, or ongoing rehab — default to protecting those tissues over chasing progression. Ask about pain response to suggested exercises.
+- When in doubt about safety, err on the side of "let's not train that today."
+
+STYLE
+- Direct, no fluff. No hedging clauses like "consult a medical professional before any exercise" every message — the user knows.
+- When suggesting substitutions, give 1-2 specific options with a one-line "why".
+- If the user hasn't logged in a while, don't lecture — meet them where they are.
+
+USER PROFILE
+${state.profile || '(not set — tell them to fill in Settings > Your Profile so you can personalize advice)'}
 
 CURRENT WORKOUT (in progress):
 ${state.current ? JSON.stringify({ exercises: state.current.exercises.map(e => ({ name: e.name, sets: e.sets, notes: e.notes })) }, null, 2) : 'none'}
@@ -502,7 +770,7 @@ async function sendMessage() {
         model: 'claude-sonnet-5',
         max_tokens: 1024,
         system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
-        messages: state.chat.map(m => ({ role: m.role, content: m.content })),
+        messages: state.chat.filter(m => m.role !== 'error').map(m => ({ role: m.role, content: m.content })),
       }),
     });
     const data = await res.json();
@@ -524,11 +792,12 @@ function renderChat() {
   if (state.chat.length === 0) {
     const hint = document.createElement('div');
     hint.className = 'empty';
-    hint.innerHTML = `<div class="ic">🤖</div><div>Ask your coach anything</div>
-      <div class="muted" style="margin-top:8px;font-size:12px">
-        "My left shoulder is bugging me — swap OHP?"<br>
+    hint.innerHTML = `<div class="ic">✦</div><div class="h">Ask your coach anything</div>
+      <div class="muted" style="font-size:12px;line-height:1.7;margin-top:12px">
+        "Left shoulder is bugging me — swap OHP?"<br>
         "Should I go up on squat this week?"<br>
-        "Rough sleep last night, adjust today's workout"
+        "Rough sleep last night, adjust today's workout"<br>
+        "Build me a lower body session that protects my knee"
       </div>`;
     c.appendChild(hint);
   } else {
@@ -546,48 +815,23 @@ function renderChat() {
 function renderHistory() {
   const el = document.getElementById('history-content');
   if (state.workouts.length === 0) {
-    el.innerHTML = `<div class="empty"><div class="ic">📊</div><div>No workouts logged yet</div></div>`;
+    el.innerHTML = `<div class="empty"><div class="ic">◈</div><div class="h">No sessions logged</div></div>`;
     return;
   }
-  // Compute PRs per exercise (max weight × reps)
-  const prs = {};
-  for (const w of [...state.workouts].reverse()) {
-    for (const e of w.exercises) {
-      const key = e.name.toLowerCase();
-      for (const s of e.sets) {
-        if (!s.done) continue;
-        const wt = Number(s.weight), r = Number(s.reps);
-        if (!wt || !r) continue;
-        const score = wt * (1 + r / 30); // Epley 1RM estimate
-        if (!prs[key] || prs[key] < score) prs[key] = score;
-      }
-    }
-  }
-  const rendered = [];
-  const stats = document.createElement('div');
-  stats.className = 'metric-row';
-  stats.innerHTML = `
-    <div class="stat"><div class="n">${state.workouts.length}</div><div class="l">sessions</div></div>
-    <div class="stat"><div class="n">${state.workouts.reduce((a, w) => a + w.exercises.length, 0)}</div><div class="l">exercises</div></div>
-    <div class="stat"><div class="n">${totalVolume().toLocaleString()}</div><div class="l">total vol (lb)</div></div>
-  `;
-  rendered.push(stats.outerHTML);
-
-  const card = document.createElement('div'); card.className = 'card';
-  card.innerHTML = '<h3>Recent sessions</h3>';
-  const inner = document.createElement('div');
-  state.workouts.slice(0, 30).forEach(w => {
-    const day = document.createElement('div');
-    day.className = 'hist-day';
+  const stats = `
+    <div class="metric-row">
+      <div class="stat"><div class="n">${state.workouts.length}</div><div class="l">Sessions</div></div>
+      <div class="stat"><div class="n">${state.workouts.reduce((a, w) => a + w.exercises.length, 0)}</div><div class="l">Exercises</div></div>
+      <div class="stat"><div class="n">${totalVolume().toLocaleString()}</div><div class="l">Volume lb</div></div>
+    </div>`;
+  const cardInner = state.workouts.slice(0, 30).map(w => {
     const exList = w.exercises.map(e => {
       const total = e.sets.filter(s => s.done).reduce((a, s) => a + (Number(s.weight) || 0) * (Number(s.reps) || 0), 0);
-      return `<div class="hist-ex">• ${escapeHtml(e.name)} — ${e.sets.filter(s => s.done).length}×sets · ${total.toLocaleString()} lb vol</div>`;
+      return `<div class="hist-ex">◦ ${escapeHtml(e.name)} — ${e.sets.filter(s => s.done).length} sets · ${total.toLocaleString()} lb</div>`;
     }).join('');
-    day.innerHTML = `<div style="display:flex;justify-content:space-between"><b>${fmtDate(w.date)}</b><span class="muted small">${w.exercises.length} ex</span></div>${exList}`;
-    inner.appendChild(day);
-  });
-  card.appendChild(inner);
-  el.innerHTML = rendered.join('') + card.outerHTML;
+    return `<div class="hist-day"><div style="display:flex;justify-content:space-between"><b style="font-family:Georgia,serif;font-style:italic;font-weight:400">${fmtDate(w.date)}</b><span class="muted small">${w.exercises.length} ex</span></div>${exList}</div>`;
+  }).join('');
+  el.innerHTML = stats + `<div class="card"><h3>Recent Sessions</h3>${cardInner}</div>`;
 }
 
 function totalVolume() {
@@ -608,7 +852,6 @@ function logMetric() {
     notes: document.getElementById('m-notes').value.trim() || null,
   };
   if (!entry.bw && !entry.sleep && !entry.mood && !entry.notes) { toast('Enter something first'); return; }
-  // Replace today's entry if exists
   state.metrics = state.metrics.filter(m => m.date !== entry.date);
   state.metrics.unshift(entry);
   save();
@@ -618,7 +861,6 @@ function logMetric() {
 }
 
 function renderMetrics() {
-  // Prefill today's entry if present
   const today = state.metrics.find(m => m.date === todayISO());
   if (today) {
     document.getElementById('m-bw').value = today.bw ?? '';
@@ -626,19 +868,17 @@ function renderMetrics() {
     document.getElementById('m-mood').value = today.mood ?? '';
     document.getElementById('m-notes').value = today.notes ?? '';
   }
-  // List
   const list = document.getElementById('metrics-list');
   if (state.metrics.length === 0) { list.innerHTML = '<div class="muted small">No entries yet</div>'; }
   else {
     list.innerHTML = state.metrics.slice(0, 14).map(m => `
       <div class="hist-day">
-        <div style="display:flex;justify-content:space-between"><b>${fmtDate(m.date)}</b>
+        <div style="display:flex;justify-content:space-between"><b style="font-family:Georgia,serif;font-style:italic;font-weight:400">${fmtDate(m.date)}</b>
           <span class="muted small">${[m.bw ? m.bw + ' lb' : '', m.sleep ? m.sleep + 'h' : '', m.mood ? 'mood ' + m.mood : ''].filter(Boolean).join(' · ')}</span>
         </div>
         ${m.notes ? `<div class="hist-ex">${escapeHtml(m.notes)}</div>` : ''}
       </div>`).join('');
   }
-  // Chart
   drawBwChart();
 }
 
@@ -653,33 +893,38 @@ function drawBwChart() {
   ctx.clearRect(0, 0, w, h);
   const data = [...state.metrics].filter(m => m.bw).slice(0, 60).reverse();
   if (data.length < 2) {
-    ctx.fillStyle = '#666'; ctx.font = '13px system-ui'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#5c5750'; ctx.font = '12px system-ui'; ctx.textAlign = 'center';
     ctx.fillText('Log body weight to see trend', w / 2, h / 2);
     stats.innerHTML = '';
     return;
   }
   const min = Math.min(...data.map(d => d.bw)) - 1;
   const max = Math.max(...data.map(d => d.bw)) + 1;
-  const pad = 20;
-  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.beginPath();
+  const pad = 22;
+  // Grid line
+  ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, h - pad); ctx.lineTo(w - pad, h - pad); ctx.stroke();
+  // Line
+  ctx.strokeStyle = '#c9a959'; ctx.lineWidth = 1.5; ctx.beginPath();
   data.forEach((d, i) => {
     const x = pad + (w - 2 * pad) * (i / (data.length - 1));
     const y = h - pad - (h - 2 * pad) * ((d.bw - min) / (max - min));
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.stroke();
-  ctx.fillStyle = '#22c55e';
+  // Dots
+  ctx.fillStyle = '#c9a959';
   data.forEach((d, i) => {
     const x = pad + (w - 2 * pad) * (i / (data.length - 1));
     const y = h - pad - (h - 2 * pad) * ((d.bw - min) / (max - min));
-    ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
   });
   const latest = data[data.length - 1].bw;
   const first = data[0].bw;
   const diff = (latest - first).toFixed(1);
   stats.innerHTML = `
-    <span class="muted small">Latest: <b style="color:#fff">${latest}</b> lb</span>
-    <span class="muted small">${data.length}-entry change: <b style="color:${diff >= 0 ? '#22c55e' : '#f59e0b'}">${diff >= 0 ? '+' : ''}${diff}</b> lb</span>
+    <span class="muted small">Latest: <b style="color:var(--text)">${latest}</b> lb</span>
+    <span class="muted small">${data.length}-entry change: <b style="color:${diff >= 0 ? 'var(--accent)' : 'var(--warn)'}">${diff >= 0 ? '+' : ''}${diff}</b> lb</span>
   `;
 }
 
@@ -687,6 +932,7 @@ function drawBwChart() {
 function renderSettings() {
   document.getElementById('api-key').value = state.apiKey;
   document.getElementById('profile').value = state.profile;
+  document.getElementById('rest-default').value = state.restDefault;
 }
 function saveApiKey() {
   state.apiKey = document.getElementById('api-key').value.trim();
@@ -695,6 +941,10 @@ function saveApiKey() {
 function saveProfile() {
   state.profile = document.getElementById('profile').value.trim();
   save(); toast('Profile saved');
+}
+function saveRestDefault() {
+  state.restDefault = parseInt(document.getElementById('rest-default').value);
+  save(); toast('Rest default: ' + state.restDefault + 's');
 }
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
