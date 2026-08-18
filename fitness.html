@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fitness">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a0a0a'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%2322c55e'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+<title>Fitness Coach</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior: none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0a0a0a; color: #f5f5f5;
+    display: flex; flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  header {
+    padding: 14px 16px 10px; border-bottom: 1px solid #1f1f1f;
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: calc(14px + env(safe-area-inset-top));
+  }
+  header h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  header .status { font-size: 12px; color: #666; }
+  header .status.ok { color: #22c55e; }
+  main { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 90px; -webkit-overflow-scrolling: touch; }
+  nav.tabs {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    background: #101010; border-top: 1px solid #1f1f1f;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 10;
+  }
+  nav.tabs button {
+    background: none; border: none; color: #666; font-size: 11px;
+    padding: 10px 4px 12px; cursor: pointer; font-family: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  nav.tabs button .ic { font-size: 20px; line-height: 1; }
+  nav.tabs button.active { color: #22c55e; }
+  section { display: none; }
+  section.active { display: block; animation: fade .15s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .card { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .card h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: #ddd; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row.wrap { flex-wrap: wrap; }
+  .grow { flex: 1; }
+  .muted { color: #777; font-size: 12px; }
+  .small { font-size: 12px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: #1e2f1e; color: #22c55e; }
+  .pill.warn { background: #2f2419; color: #f59e0b; }
+
+  input, textarea, select, button {
+    font-family: inherit; font-size: 15px; color: #f5f5f5;
+    background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px;
+    padding: 10px 12px; outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: #22c55e; }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  textarea { resize: vertical; min-height: 60px; width: 100%; }
+
+  button.btn { cursor: pointer; font-weight: 500; }
+  button.btn.primary { background: #22c55e; color: #052e16; border-color: #22c55e; }
+  button.btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.btn.ghost { background: transparent; }
+  button.btn.danger { background: transparent; border-color: #3a1a1a; color: #ef4444; }
+  button.btn.sm { padding: 6px 10px; font-size: 13px; }
+
+  .setrow { display: grid; grid-template-columns: 28px 1fr 1fr 44px 32px; gap: 6px; align-items: center; margin-bottom: 6px; }
+  .setrow .idx { color: #666; font-size: 13px; text-align: center; }
+  .setrow input { padding: 8px 10px; font-size: 14px; text-align: center; }
+  .setrow .done { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 8px 0; cursor: pointer; text-align: center; }
+  .setrow .done.on { background: #1e2f1e; border-color: #22c55e; color: #22c55e; }
+  .setrow .rm { background: none; border: none; color: #555; cursor: pointer; font-size: 18px; padding: 0; }
+
+  .exercise { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+  .exercise .ehead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .exercise .ename { font-weight: 600; font-size: 15px; }
+  .exercise .ehist { font-size: 11px; color: #888; margin-bottom: 8px; }
+
+  /* Chat */
+  #coach { display: none; height: calc(100vh - 140px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); flex-direction: column; }
+  #coach.active { display: flex; }
+  .chat { flex: 1; overflow-y: auto; padding: 4px; }
+  .msg { margin-bottom: 10px; max-width: 88%; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.user { background: #1e2f1e; color: #dcfce7; margin-left: auto; border-bottom-right-radius: 4px; }
+  .msg.assistant { background: #1a1a1a; border: 1px solid #222; border-bottom-left-radius: 4px; }
+  .msg.error { background: #2a1414; color: #f87171; border: 1px solid #442020; }
+  .composer { display: flex; gap: 6px; padding-top: 8px; border-top: 1px solid #1f1f1f; }
+  .composer textarea { min-height: 44px; max-height: 120px; padding: 10px 12px; }
+
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .stat { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 10px; text-align: center; }
+  .stat .n { font-size: 20px; font-weight: 600; color: #22c55e; }
+  .stat .l { font-size: 11px; color: #888; margin-top: 2px; }
+
+  .hist-day { padding: 10px 0; border-bottom: 1px solid #1f1f1f; }
+  .hist-day:last-child { border-bottom: none; }
+  .hist-ex { font-size: 13px; color: #bbb; margin: 4px 0 0 8px; }
+  .pr { color: #22c55e; font-weight: 600; }
+
+  .chart { width: 100%; height: 140px; margin-top: 8px; }
+
+  .empty { text-align: center; color: #666; padding: 40px 20px; }
+  .empty .ic { font-size: 40px; margin-bottom: 8px; }
+
+  details summary { cursor: pointer; color: #888; font-size: 13px; padding: 6px 0; }
+  details[open] summary { color: #ddd; }
+
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1e2f1e; color: #22c55e; padding: 10px 16px; border-radius: 999px; font-size: 13px; border: 1px solid #22c55e; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 100; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="page-title">Workout</h1>
+  <span class="status" id="api-status">No API key</span>
+</header>
+
+<main>
+
+<!-- WORKOUT TAB -->
+<section id="tab-workout" class="active">
+  <div id="workout-empty" class="empty" style="display:none">
+    <div class="ic">💪</div>
+    <div>No workout in progress</div>
+    <div class="muted" style="margin-top:8px">Start one to log exercises</div>
+    <button class="btn primary" style="margin-top:16px" onclick="startWorkout()">Start Workout</button>
+  </div>
+  <div id="workout-active" style="display:none">
+    <div class="card">
+      <div class="row">
+        <div class="grow">
+          <div class="small muted" id="workout-date"></div>
+          <div style="font-size:16px;font-weight:600;margin-top:2px" id="workout-title">Today's Session</div>
+        </div>
+        <button class="btn sm ghost" onclick="finishWorkout()">Finish</button>
+      </div>
+    </div>
+    <div id="exercises"></div>
+    <div class="row" style="margin-top:12px">
+      <input id="new-exercise" class="grow" placeholder="Add exercise (e.g. Bench Press)" list="exercise-suggestions">
+      <datalist id="exercise-suggestions"></datalist>
+      <button class="btn primary" onclick="addExercise()">Add</button>
+    </div>
+    <div class="row wrap" style="margin-top:10px;gap:6px" id="quick-add"></div>
+  </div>
+</section>
+
+<!-- COACH TAB -->
+<section id="tab-coach">
+  <div class="chat" id="chat"></div>
+  <div class="composer">
+    <textarea id="chat-input" placeholder="How are you feeling? Any injuries? Should I go up on bench?" rows="1"></textarea>
+    <button class="btn primary" id="send-btn" onclick="sendMessage()">Send</button>
+  </div>
+</section>
+
+<!-- HISTORY TAB -->
+<section id="tab-history">
+  <div id="history-content"></div>
+</section>
+
+<!-- METRICS TAB -->
+<section id="tab-metrics">
+  <div class="card">
+    <h3>Log today</h3>
+    <div class="metric-row">
+      <input type="number" id="m-bw" placeholder="Weight (lb)" step="0.1">
+      <input type="number" id="m-sleep" placeholder="Sleep (h)" step="0.5">
+      <input type="number" id="m-mood" placeholder="Mood 1-10" min="1" max="10">
+    </div>
+    <textarea id="m-notes" placeholder="Notes (energy, soreness, injuries, etc.)"></textarea>
+    <button class="btn primary" style="margin-top:8px;width:100%" onclick="logMetric()">Save Metrics</button>
+  </div>
+  <div class="card">
+    <h3>Body weight trend</h3>
+    <canvas id="bw-chart" class="chart"></canvas>
+    <div id="bw-stats" class="row" style="margin-top:8px;justify-content:space-between"></div>
+  </div>
+  <div class="card">
+    <h3>Recent entries</h3>
+    <div id="metrics-list"></div>
+  </div>
+</section>
+
+<!-- SETTINGS TAB -->
+<section id="tab-settings">
+  <div class="card">
+    <h3>Anthropic API Key</h3>
+    <div class="muted small" style="margin-bottom:10px">
+      Needed for the AI Coach. Get one at console.anthropic.com. Stored locally on this device only — never sent anywhere except Anthropic's API.
+    </div>
+    <input type="password" id="api-key" placeholder="sk-ant-..." style="width:100%">
+    <button class="btn primary" style="margin-top:8px;width:100%" onclick="saveApiKey()">Save Key</button>
+  </div>
+  <div class="card">
+    <h3>Your profile</h3>
+    <div class="muted small" style="margin-bottom:10px">
+      Coach uses this to personalize advice. Include goals, training experience, ongoing injuries, preferences.
+    </div>
+    <textarea id="profile" rows="6" placeholder="e.g. 32M, 180lb, 3 years lifting. Goal: hypertrophy + strength. Left shoulder impingement — avoid overhead pressing. Train 4x/week."></textarea>
+    <button class="btn primary" style="margin-top:8px;width:100%" onclick="saveProfile()">Save Profile</button>
+  </div>
+  <div class="card">
+    <h3>Data</h3>
+    <div class="row" style="gap:8px">
+      <button class="btn ghost grow" onclick="exportData()">Export JSON</button>
+      <button class="btn ghost grow" onclick="importData()">Import JSON</button>
+    </div>
+    <button class="btn danger" style="margin-top:8px;width:100%" onclick="clearAll()">Clear all data</button>
+  </div>
+  <div class="card">
+    <h3>About</h3>
+    <div class="muted small">
+      All data stays on this device (localStorage). To use on your phone: open this page's URL and tap "Add to Home Screen".
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="tabs">
+  <button data-tab="workout" class="active" onclick="switchTab('workout')"><span class="ic">🏋️</span>Workout</button>
+  <button data-tab="coach" onclick="switchTab('coach')"><span class="ic">🤖</span>Coach</button>
+  <button data-tab="history" onclick="switchTab('history')"><span class="ic">📊</span>History</button>
+  <button data-tab="metrics" onclick="switchTab('metrics')"><span class="ic">📈</span>Metrics</button>
+  <button data-tab="settings" onclick="switchTab('settings')"><span class="ic">⚙️</span>Settings</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- State ----------
+const STORAGE_KEY = 'fitness-coach-v1';
+const state = {
+  workouts: [],       // completed [{id, date, exercises: [{name, sets: [{weight, reps, done}], notes}]}]
+  current: null,      // in-progress workout
+  metrics: [],        // [{date, bw, sleep, mood, notes}]
+  chat: [],           // [{role, content}]
+  profile: '',
+  apiKey: '',
+};
+
+function load() {
+  try { const s = localStorage.getItem(STORAGE_KEY); if (s) Object.assign(state, JSON.parse(s)); } catch {}
+}
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+load();
+
+// ---------- Tabs ----------
+const TITLES = { workout: 'Workout', coach: 'AI Coach', history: 'History', metrics: 'Metrics', settings: 'Settings' };
+function switchTab(name) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.getElementById('page-title').textContent = TITLES[name];
+  if (name === 'workout') renderWorkout();
+  if (name === 'coach') renderChat();
+  if (name === 'history') renderHistory();
+  if (name === 'metrics') renderMetrics();
+  if (name === 'settings') renderSettings();
+}
+
+// ---------- Helpers ----------
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+function uid() { return Math.random().toString(36).slice(2, 10); }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function updateApiStatus() {
+  const el = document.getElementById('api-status');
+  if (state.apiKey) { el.textContent = 'Coach ready'; el.classList.add('ok'); }
+  else { el.textContent = 'No API key'; el.classList.remove('ok'); }
+}
+
+// ---------- Workout ----------
+function startWorkout() {
+  state.current = { id: uid(), date: new Date().toISOString(), exercises: [] };
+  save(); renderWorkout();
+}
+function finishWorkout() {
+  if (!state.current) return;
+  if (state.current.exercises.length === 0) {
+    if (!confirm('Discard empty workout?')) return;
+    state.current = null; save(); renderWorkout(); return;
+  }
+  state.workouts.unshift(state.current);
+  state.current = null; save();
+  toast('Workout saved'); renderWorkout();
+}
+function addExercise(name) {
+  const input = document.getElementById('new-exercise');
+  const n = (name || input.value || '').trim();
+  if (!n) return;
+  const last = findLastExercise(n);
+  const initialSet = last && last.sets.length
+    ? { weight: last.sets[last.sets.length - 1].weight, reps: last.sets[last.sets.length - 1].reps, done: false }
+    : { weight: '', reps: '', done: false };
+  state.current.exercises.push({ name: n, sets: [initialSet], notes: '' });
+  input.value = ''; save(); renderWorkout();
+}
+function findLastExercise(name) {
+  const lower = name.toLowerCase();
+  for (const w of state.workouts) {
+    const ex = w.exercises.find(e => e.name.toLowerCase() === lower);
+    if (ex) return ex;
+  }
+  return null;
+}
+function addSet(exIdx) {
+  const ex = state.current.exercises[exIdx];
+  const last = ex.sets[ex.sets.length - 1];
+  ex.sets.push({ weight: last ? last.weight : '', reps: last ? last.reps : '', done: false });
+  save(); renderWorkout();
+}
+function removeSet(exIdx, sIdx) {
+  state.current.exercises[exIdx].sets.splice(sIdx, 1);
+  if (state.current.exercises[exIdx].sets.length === 0) state.current.exercises[exIdx].sets.push({ weight: '', reps: '', done: false });
+  save(); renderWorkout();
+}
+function removeExercise(exIdx) {
+  if (!confirm('Remove this exercise?')) return;
+  state.current.exercises.splice(exIdx, 1);
+  save(); renderWorkout();
+}
+function updateSet(exIdx, sIdx, field, value) {
+  state.current.exercises[exIdx].sets[sIdx][field] = value;
+  save();
+}
+function toggleDone(exIdx, sIdx) {
+  const s = state.current.exercises[exIdx].sets[sIdx];
+  s.done = !s.done; save(); renderWorkout();
+}
+function updateNotes(exIdx, notes) {
+  state.current.exercises[exIdx].notes = notes; save();
+}
+
+function renderWorkout() {
+  const empty = document.getElementById('workout-empty');
+  const active = document.getElementById('workout-active');
+  if (!state.current) {
+    empty.style.display = 'block'; active.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none'; active.style.display = 'block';
+  document.getElementById('workout-date').textContent = fmtDate(state.current.date);
+
+  const container = document.getElementById('exercises');
+  container.innerHTML = '';
+  state.current.exercises.forEach((ex, i) => {
+    const last = findLastExercise(ex.name);
+    const suggestion = last ? suggestProgression(ex.name, last) : '';
+    const div = document.createElement('div');
+    div.className = 'exercise';
+    div.innerHTML = `
+      <div class="ehead">
+        <div class="ename">${escapeHtml(ex.name)}</div>
+        <button class="btn sm danger" onclick="removeExercise(${i})">Remove</button>
+      </div>
+      ${last ? `<div class="ehist">Last: ${last.sets.map(s => `${s.weight || '?'}×${s.reps || '?'}`).join(', ')}${suggestion ? ' · <span class="pill">' + suggestion + '</span>' : ''}</div>` : ''}
+      <div class="sets" id="sets-${i}"></div>
+      <div class="row" style="margin-top:6px;gap:6px">
+        <button class="btn sm ghost" onclick="addSet(${i})">+ Set</button>
+      </div>
+      <details style="margin-top:8px">
+        <summary>Notes</summary>
+        <textarea onchange="updateNotes(${i}, this.value)" placeholder="Form cues, how it felt, etc.">${escapeHtml(ex.notes || '')}</textarea>
+      </details>
+    `;
+    container.appendChild(div);
+    const setsEl = div.querySelector('#sets-' + i);
+    ex.sets.forEach((s, si) => {
+      const row = document.createElement('div');
+      row.className = 'setrow';
+      row.innerHTML = `
+        <div class="idx">${si + 1}</div>
+        <input type="number" inputmode="decimal" placeholder="lb" value="${s.weight}" onchange="updateSet(${i}, ${si}, 'weight', this.value)">
+        <input type="number" inputmode="numeric" placeholder="reps" value="${s.reps}" onchange="updateSet(${i}, ${si}, 'reps', this.value)">
+        <div class="done ${s.done ? 'on' : ''}" onclick="toggleDone(${i}, ${si})">${s.done ? '✓' : '○'}</div>
+        <button class="rm" onclick="removeSet(${i}, ${si})">×</button>
+      `;
+      setsEl.appendChild(row);
+    });
+  });
+
+  // exercise suggestions from history
+  const seen = new Set(); const dl = document.getElementById('exercise-suggestions'); dl.innerHTML = '';
+  for (const w of state.workouts) for (const e of w.exercises) {
+    if (!seen.has(e.name.toLowerCase())) { seen.add(e.name.toLowerCase()); const o = document.createElement('option'); o.value = e.name; dl.appendChild(o); }
+  }
+  // quick add for last workout's exercises
+  const quick = document.getElementById('quick-add');
+  quick.innerHTML = '';
+  if (state.workouts.length && state.current.exercises.length === 0) {
+    const lastNames = state.workouts[0].exercises.map(e => e.name).slice(0, 6);
+    if (lastNames.length) {
+      const label = document.createElement('span'); label.className = 'muted small'; label.style.width = '100%'; label.textContent = 'Quick add from last workout:'; quick.appendChild(label);
+      lastNames.forEach(n => {
+        const b = document.createElement('button'); b.className = 'btn sm ghost'; b.textContent = '+ ' + n;
+        b.onclick = () => addExercise(n); quick.appendChild(b);
+      });
+    }
+  }
+}
+
+function suggestProgression(name, lastEx) {
+  // Look at last two sessions with this exercise
+  const lower = name.toLowerCase();
+  const sessions = state.workouts.filter(w => w.exercises.some(e => e.name.toLowerCase() === lower)).slice(0, 2);
+  if (sessions.length < 2) return '';
+  const perSession = sessions.map(s => s.exercises.find(e => e.name.toLowerCase() === lower));
+  const allDone = perSession.every(e => e.sets.every(s => s.done && Number(s.reps) >= 5));
+  if (!allDone) return '';
+  const w1 = Number(perSession[0].sets[0].weight);
+  const w2 = Number(perSession[1].sets[0].weight);
+  if (isNaN(w1) || isNaN(w2)) return '';
+  if (w1 === w2) return 'Try +5 lb';
+  return '';
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// ---------- Coach ----------
+function buildSystemPrompt() {
+  const recent = state.workouts.slice(0, 8).map(w => ({
+    date: w.date.slice(0, 10),
+    exercises: w.exercises.map(e => ({
+      name: e.name,
+      sets: e.sets.map(s => ({ w: s.weight, r: s.reps, done: s.done })),
+      notes: e.notes || undefined,
+    })),
+  }));
+  const recentMetrics = state.metrics.slice(0, 14);
+  return `You are an experienced, no-nonsense strength & conditioning coach embedded in the user's fitness tracker app. You give practical, safe, personalized advice.
+
+Guidelines:
+- Be concise. Match message length to the question — a one-line answer for a quick check, a paragraph for planning.
+- Cite the user's actual data when relevant (last weights, trends, recent notes).
+- For progression: recommend +5 lb on upper-body lifts or +10 lb on lower-body lifts only when they completed all sets/reps for 2+ sessions in a row. Otherwise suggest holding weight and getting more reps, or working on form.
+- For injuries: suggest specific substitutions (e.g. "swap OHP for landmine press" for shoulder issues). Never diagnose — if it sounds serious, tell them to see a PT.
+- When they describe how they're feeling, adapt: low sleep/high soreness → deload or reduce volume; feeling great → push for a PR set.
+- If they haven't logged in a while, don't lecture — just meet them where they are.
+
+USER PROFILE:
+${state.profile || '(not set — ask them to fill in Settings)'}
+
+CURRENT WORKOUT (in progress):
+${state.current ? JSON.stringify({ exercises: state.current.exercises.map(e => ({ name: e.name, sets: e.sets, notes: e.notes })) }, null, 2) : 'none'}
+
+RECENT WORKOUTS (newest first):
+${recent.length ? JSON.stringify(recent, null, 2) : 'none logged yet'}
+
+RECENT METRICS (newest first):
+${recentMetrics.length ? JSON.stringify(recentMetrics, null, 2) : 'none logged yet'}`;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!state.apiKey) {
+    toast('Add your API key in Settings');
+    switchTab('settings');
+    return;
+  }
+  input.value = '';
+  input.style.height = 'auto';
+  state.chat.push({ role: 'user', content: text });
+  save(); renderChat();
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true; btn.textContent = '…';
+
+  try {
+    const system = buildSystemPrompt();
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-5',
+        max_tokens: 1024,
+        system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+        messages: state.chat.map(m => ({ role: m.role, content: m.content })),
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+    const reply = data.content?.[0]?.text || '(empty response)';
+    state.chat.push({ role: 'assistant', content: reply });
+    save(); renderChat();
+  } catch (err) {
+    state.chat.push({ role: 'error', content: 'Error: ' + err.message });
+    save(); renderChat();
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send';
+  }
+}
+
+function renderChat() {
+  const c = document.getElementById('chat');
+  c.innerHTML = '';
+  if (state.chat.length === 0) {
+    const hint = document.createElement('div');
+    hint.className = 'empty';
+    hint.innerHTML = `<div class="ic">🤖</div><div>Ask your coach anything</div>
+      <div class="muted" style="margin-top:8px;font-size:12px">
+        "My left shoulder is bugging me — swap OHP?"<br>
+        "Should I go up on squat this week?"<br>
+        "Rough sleep last night, adjust today's workout"
+      </div>`;
+    c.appendChild(hint);
+  } else {
+    for (const m of state.chat) {
+      const d = document.createElement('div');
+      d.className = 'msg ' + (m.role === 'user' ? 'user' : m.role === 'error' ? 'error' : 'assistant');
+      d.textContent = m.content;
+      c.appendChild(d);
+    }
+  }
+  c.scrollTop = c.scrollHeight;
+}
+
+// ---------- History ----------
+function renderHistory() {
+  const el = document.getElementById('history-content');
+  if (state.workouts.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="ic">📊</div><div>No workouts logged yet</div></div>`;
+    return;
+  }
+  // Compute PRs per exercise (max weight × reps)
+  const prs = {};
+  for (const w of [...state.workouts].reverse()) {
+    for (const e of w.exercises) {
+      const key = e.name.toLowerCase();
+      for (const s of e.sets) {
+        if (!s.done) continue;
+        const wt = Number(s.weight), r = Number(s.reps);
+        if (!wt || !r) continue;
+        const score = wt * (1 + r / 30); // Epley 1RM estimate
+        if (!prs[key] || prs[key] < score) prs[key] = score;
+      }
+    }
+  }
+  const rendered = [];
+  const stats = document.createElement('div');
+  stats.className = 'metric-row';
+  stats.innerHTML = `
+    <div class="stat"><div class="n">${state.workouts.length}</div><div class="l">sessions</div></div>
+    <div class="stat"><div class="n">${state.workouts.reduce((a, w) => a + w.exercises.length, 0)}</div><div class="l">exercises</div></div>
+    <div class="stat"><div class="n">${totalVolume().toLocaleString()}</div><div class="l">total vol (lb)</div></div>
+  `;
+  rendered.push(stats.outerHTML);
+
+  const card = document.createElement('div'); card.className = 'card';
+  card.innerHTML = '<h3>Recent sessions</h3>';
+  const inner = document.createElement('div');
+  state.workouts.slice(0, 30).forEach(w => {
+    const day = document.createElement('div');
+    day.className = 'hist-day';
+    const exList = w.exercises.map(e => {
+      const total = e.sets.filter(s => s.done).reduce((a, s) => a + (Number(s.weight) || 0) * (Number(s.reps) || 0), 0);
+      return `<div class="hist-ex">• ${escapeHtml(e.name)} — ${e.sets.filter(s => s.done).length}×sets · ${total.toLocaleString()} lb vol</div>`;
+    }).join('');
+    day.innerHTML = `<div style="display:flex;justify-content:space-between"><b>${fmtDate(w.date)}</b><span class="muted small">${w.exercises.length} ex</span></div>${exList}`;
+    inner.appendChild(day);
+  });
+  card.appendChild(inner);
+  el.innerHTML = rendered.join('') + card.outerHTML;
+}
+
+function totalVolume() {
+  let v = 0;
+  for (const w of state.workouts) for (const e of w.exercises) for (const s of e.sets) {
+    if (s.done) v += (Number(s.weight) || 0) * (Number(s.reps) || 0);
+  }
+  return Math.round(v);
+}
+
+// ---------- Metrics ----------
+function logMetric() {
+  const entry = {
+    date: todayISO(),
+    bw: parseFloat(document.getElementById('m-bw').value) || null,
+    sleep: parseFloat(document.getElementById('m-sleep').value) || null,
+    mood: parseInt(document.getElementById('m-mood').value) || null,
+    notes: document.getElementById('m-notes').value.trim() || null,
+  };
+  if (!entry.bw && !entry.sleep && !entry.mood && !entry.notes) { toast('Enter something first'); return; }
+  // Replace today's entry if exists
+  state.metrics = state.metrics.filter(m => m.date !== entry.date);
+  state.metrics.unshift(entry);
+  save();
+  ['m-bw', 'm-sleep', 'm-mood', 'm-notes'].forEach(id => document.getElementById(id).value = '');
+  toast('Saved');
+  renderMetrics();
+}
+
+function renderMetrics() {
+  // Prefill today's entry if present
+  const today = state.metrics.find(m => m.date === todayISO());
+  if (today) {
+    document.getElementById('m-bw').value = today.bw ?? '';
+    document.getElementById('m-sleep').value = today.sleep ?? '';
+    document.getElementById('m-mood').value = today.mood ?? '';
+    document.getElementById('m-notes').value = today.notes ?? '';
+  }
+  // List
+  const list = document.getElementById('metrics-list');
+  if (state.metrics.length === 0) { list.innerHTML = '<div class="muted small">No entries yet</div>'; }
+  else {
+    list.innerHTML = state.metrics.slice(0, 14).map(m => `
+      <div class="hist-day">
+        <div style="display:flex;justify-content:space-between"><b>${fmtDate(m.date)}</b>
+          <span class="muted small">${[m.bw ? m.bw + ' lb' : '', m.sleep ? m.sleep + 'h' : '', m.mood ? 'mood ' + m.mood : ''].filter(Boolean).join(' · ')}</span>
+        </div>
+        ${m.notes ? `<div class="hist-ex">${escapeHtml(m.notes)}</div>` : ''}
+      </div>`).join('');
+  }
+  // Chart
+  drawBwChart();
+}
+
+function drawBwChart() {
+  const c = document.getElementById('bw-chart');
+  const stats = document.getElementById('bw-stats');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = c.getBoundingClientRect();
+  c.width = rect.width * dpr; c.height = rect.height * dpr;
+  const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
+  const w = rect.width, h = rect.height;
+  ctx.clearRect(0, 0, w, h);
+  const data = [...state.metrics].filter(m => m.bw).slice(0, 60).reverse();
+  if (data.length < 2) {
+    ctx.fillStyle = '#666'; ctx.font = '13px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText('Log body weight to see trend', w / 2, h / 2);
+    stats.innerHTML = '';
+    return;
+  }
+  const min = Math.min(...data.map(d => d.bw)) - 1;
+  const max = Math.max(...data.map(d => d.bw)) + 1;
+  const pad = 20;
+  ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.beginPath();
+  data.forEach((d, i) => {
+    const x = pad + (w - 2 * pad) * (i / (data.length - 1));
+    const y = h - pad - (h - 2 * pad) * ((d.bw - min) / (max - min));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = '#22c55e';
+  data.forEach((d, i) => {
+    const x = pad + (w - 2 * pad) * (i / (data.length - 1));
+    const y = h - pad - (h - 2 * pad) * ((d.bw - min) / (max - min));
+    ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
+  });
+  const latest = data[data.length - 1].bw;
+  const first = data[0].bw;
+  const diff = (latest - first).toFixed(1);
+  stats.innerHTML = `
+    <span class="muted small">Latest: <b style="color:#fff">${latest}</b> lb</span>
+    <span class="muted small">${data.length}-entry change: <b style="color:${diff >= 0 ? '#22c55e' : '#f59e0b'}">${diff >= 0 ? '+' : ''}${diff}</b> lb</span>
+  `;
+}
+
+// ---------- Settings ----------
+function renderSettings() {
+  document.getElementById('api-key').value = state.apiKey;
+  document.getElementById('profile').value = state.profile;
+}
+function saveApiKey() {
+  state.apiKey = document.getElementById('api-key').value.trim();
+  save(); updateApiStatus(); toast('API key saved');
+}
+function saveProfile() {
+  state.profile = document.getElementById('profile').value.trim();
+  save(); toast('Profile saved');
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'fitness-' + todayISO() + '.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'application/json';
+  input.onchange = e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!confirm('Replace all current data with imported file?')) return;
+        Object.assign(state, data); save(); toast('Imported');
+        switchTab('workout');
+      } catch { toast('Invalid file'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function clearAll() {
+  if (!confirm('Delete ALL workouts, metrics, chat, and settings? This cannot be undone.')) return;
+  if (!confirm('Really sure? Export first if you want a backup.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+// ---------- Init ----------
+document.getElementById('chat-input').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(120, this.scrollHeight) + 'px';
+});
+document.getElementById('chat-input').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey && !/Mobi|Android/.test(navigator.userAgent)) {
+    e.preventDefault(); sendMessage();
+  }
+});
+
+updateApiStatus();
+renderWorkout();
+</script>
+
+</body>
+</html>
