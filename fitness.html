@@ -66,12 +66,13 @@
   }
   nav.tabs button {
     background: none; border: none; color: var(--text-3);
-    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 12px 4px 14px; cursor: pointer; font-family: inherit;
+    font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 10px 2px 12px; cursor: pointer; font-family: inherit;
     display: flex; flex-direction: column; align-items: center; gap: 4px;
     transition: color .15s;
+    min-width: 0;
   }
-  nav.tabs button .ic { font-size: 20px; line-height: 1; filter: grayscale(0.4); }
+  nav.tabs button .ic { font-size: 18px; line-height: 1; filter: grayscale(0.4); }
   nav.tabs button.active { color: var(--accent); }
   nav.tabs button.active .ic { filter: none; }
   section { display: none; }
@@ -107,7 +108,7 @@
   }
 
   input, textarea, select, button {
-    font-family: inherit; font-size: 15px; color: var(--text);
+    font-family: inherit; font-size: 16px; color: var(--text);
     background: var(--surface-2); border: 1px solid var(--border);
     border-radius: 4px; padding: 11px 13px; outline: none;
     transition: border-color .15s;
@@ -131,21 +132,21 @@
   button.btn.sm { padding: 7px 11px; font-size: 11px; letter-spacing: 0.1em; }
 
   .setrow {
-    display: grid; grid-template-columns: 24px 1fr 1fr 44px 28px;
-    gap: 8px; align-items: center; margin-bottom: 6px;
+    display: grid; grid-template-columns: 20px 1fr 1fr 46px 26px;
+    gap: 6px; align-items: center; margin-bottom: 7px;
   }
   .setrow .idx {
     color: var(--text-3); font-size: 11px; text-align: center;
     font-variant-numeric: tabular-nums;
   }
   .setrow input {
-    padding: 9px 8px; font-size: 14px; text-align: center;
+    padding: 11px 6px; font-size: 16px; text-align: center;
     background: var(--surface-2);
   }
   .setrow .done {
     background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: 4px; padding: 9px 0; cursor: pointer; text-align: center;
-    color: var(--text-3); font-size: 14px; transition: all .15s;
+    border-radius: 4px; padding: 11px 0; cursor: pointer; text-align: center;
+    color: var(--text-3); font-size: 16px; transition: all .15s;
   }
   .setrow .done.on {
     background: var(--accent); border-color: var(--accent);
@@ -173,7 +174,7 @@
   .exercise .ehist .pill { margin-left: 4px; }
 
   /* Chat */
-  #tab-coach { height: calc(100vh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  #tab-coach { height: calc(100dvh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); min-height: 50vh; }
   #tab-coach.active { display: flex; flex-direction: column; }
   .chat { flex: 1; overflow-y: auto; padding: 4px; }
   .msg {
@@ -366,6 +367,14 @@
     <button class="btn primary" style="margin-top:10px;width:100%" onclick="saveProfile()">Save Profile</button>
   </div>
   <div class="card">
+    <h3>Training Program</h3>
+    <div class="muted small" style="margin-bottom:12px">
+      Your typical workouts, splits, and working loads. Coach uses this to pick sensible weights and match your usual programming.
+    </div>
+    <textarea id="program" rows="10" placeholder="Push (Mon): Bench 3x8@185, Incline DB Press 3x10@60, ..."></textarea>
+    <button class="btn primary" style="margin-top:10px;width:100%" onclick="saveProgram()">Save Program</button>
+  </div>
+  <div class="card">
     <h3>Rest Timer Default</h3>
     <div class="row" style="gap:8px;margin-top:8px">
       <select id="rest-default" onchange="saveRestDefault()" style="flex:1">
@@ -430,6 +439,7 @@ const state = {
   metrics: [],
   chat: [],
   profile: '',
+  program: '',
   apiKey: '',
   restDefault: 120,
 };
@@ -715,11 +725,12 @@ CORE GUIDELINES
 - Progression rule: recommend +5 lb on upper-body lifts or +10 lb on lower-body lifts ONLY when they've completed all sets and reps for 2+ sessions in a row. Otherwise, suggest holding weight for more reps or better form.
 - Adapt to state: low sleep / high soreness → deload or reduce volume. Feeling great → push for a top set. Injured or in pain → substitute or skip the movement.
 
-SAFETY — NON-NEGOTIABLE
-- Neurological red flags (numbness, tingling, weakness, radiating pain, loss of bladder/bowel control) — do NOT program around them. Tell the user to see a doctor or physiotherapist before their next training session, and skip loaded work on the affected area today.
-- Never diagnose. Suggest substitutions; refer serious/new/unresolved issues to a professional.
-- If the user has post-surgical recovery, chronic joint conditions, or ongoing rehab — default to protecting those tissues over chasing progression. Ask about pain response to suggested exercises.
-- When in doubt about safety, err on the side of "let's not train that today."
+SAFETY
+- Trust the user's medical guidance. If they say a doctor or PT has cleared them to train around a specific symptom or injury, program accordingly — do NOT second-guess it or refuse. Adjust load, tempo, and selection to work within their clearance.
+- For NEW or SUDDENLY-CHANGED symptoms they haven't yet told their care team about — flag it once, suggest they mention it at their next appointment, and offer a lighter/safer option. Don't lecture and don't refuse to program.
+- ER-level flags — bladder/bowel dysfunction, sudden severe weakness, loss of function, chest pain, or new-onset radiating pain accompanied by any of the above — say clearly this is an ER symptom, not a training question.
+- Never diagnose. Suggest substitutions; note when something is worth mentioning to their care team.
+- For post-surgical recovery, chronic joint conditions, or ongoing rehab — default to protecting those tissues over chasing progression. Ask about pain response after suggesting new exercises.
 
 STYLE
 - Direct, no fluff. No hedging clauses like "consult a medical professional before any exercise" every message — the user knows.
@@ -728,6 +739,9 @@ STYLE
 
 USER PROFILE
 ${state.profile || '(not set — tell them to fill in Settings > Your Profile so you can personalize advice)'}
+
+TYPICAL TRAINING PROGRAM (their standard workouts and working loads):
+${state.program || '(not set — ask them to add it in Settings > Training Program if useful)'}
 
 CURRENT WORKOUT (in progress):
 ${state.current ? JSON.stringify({ exercises: state.current.exercises.map(e => ({ name: e.name, sets: e.sets, notes: e.notes })) }, null, 2) : 'none'}
@@ -932,6 +946,7 @@ function drawBwChart() {
 function renderSettings() {
   document.getElementById('api-key').value = state.apiKey;
   document.getElementById('profile').value = state.profile;
+  document.getElementById('program').value = state.program || '';
   document.getElementById('rest-default').value = state.restDefault;
 }
 function saveApiKey() {
@@ -941,6 +956,10 @@ function saveApiKey() {
 function saveProfile() {
   state.profile = document.getElementById('profile').value.trim();
   save(); toast('Profile saved');
+}
+function saveProgram() {
+  state.program = document.getElementById('program').value.trim();
+  save(); toast('Program saved');
 }
 function saveRestDefault() {
   state.restDefault = parseInt(document.getElementById('rest-default').value);
